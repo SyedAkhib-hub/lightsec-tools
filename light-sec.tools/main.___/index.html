@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cyber Tools – All In One</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+/* LIGHT GLASS THEME */
+body {
+    margin:0;
+    background:#311818;
+    font-family:Arial, sans-serif;
+    color:#222;
+}
+
+/* NAVBAR */
+.navbar {
+    width:100%;
+    padding:15px;
+    background:rgba(255,255,255,0.6);
+    backdrop-filter:blur(12px);
+    position:fixed;
+    top:0;
+    left:0;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    z-index:20;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.navbar button {
+    background:white;
+    border:1px solid #ddd;
+    color:#222;
+    padding:10px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.2s;
+}
+.navbar button:hover {
+    background:#007bff;
+    color:white;
+}
+
+/* PAGE CONTAINER */
+.container {
+    margin-top:120px;
+    display:flex;
+    justify-content:center;
+    flex-direction:column;
+    align-items:center;
+}
+
+.box {
+    width:500px;
+    padding:30px;
+    background:rgba(255,255,255,0.8);
+    border-radius:20px;
+    backdrop-filter:blur(12px);
+    box-shadow:0 0 20px rgba(0,0,0,0.1);
+    display:none;
+    color:#222;
+}
+
+/* Inputs */
+input, textarea, select, button {
+    width:100%;
+    margin-top:15px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+    background:white;
+    color:#222;
+}
+button {
+    background:#007bff;
+    color:white;
+    font-weight:bold;
+}
+button:hover {
+    background:#0056b3;
+}
+
+/* Strength Meter */
+.meter { height:12px; background:#ddd; border-radius:6px; margin-top:10px; }
+#meter-fill { height:100%; width:0%; background:red; transition:0.4s; border-radius:6px; }
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <button onclick="openTab('strength')">Password Strength</button>
+    <button onclick="openTab('hash')">Hash Methods</button>
+    <button onclick="openTab('base64')">Base64 Tools</button>
+    <button onclick="openTab('rot')">Rotation Encode/Decode</button>
+</div>
+
+<div class="container">
+
+<!-- ================== PASSWORD STRENGTH TOOL ================== -->
+<div id="strength" class="box">
+    <h2>Password Strength Checker 🔐</h2>
+
+    <input id="pwd" type="password" placeholder="Enter password...">
+
+    <div class="meter"><div id="meter-fill"></div></div>
+
+    <button onclick="checkStrength()">Check Strength</button>
+
+    <div id="strength-out" style="margin-top:20px;"></div>
+
+    <div id="extra-info" style="margin-top:20px; font-size:15px; line-height:1.6;"></div>
+
+    <div id="saved-section" style="margin-top:20px;">
+        <h3>.</h3>
+        <ul id="saved-passwords"></ul>
+    </div>
+</div>
+
+<!-- ================== HASH TOOL ================== -->
+<div id="hash" class="box">
+    <h2>Hash Methods 🔑</h2>
+
+    <input id="hash-input" placeholder="Enter text...">
+    <select id="hash-type">
+        <option value="SHA-1">SHA1</option>
+        <option value="SHA-256">SHA256</option>
+        <option value="SHA-512">SHA512</option>
+        <option value="MD5">MD5</option>
+    </select>
+
+    <button onclick="generateHash()">Generate Hash</button>
+
+    <textarea id="hash-output" rows="4" placeholder="Generated hash will appear here..."></textarea>
+</div>
+
+<!-- ================== BASE64 TOOL ================== -->
+<div id="base64" class="box">
+    <h2>Base64 Encode / Decode 🧬</h2>
+
+    <textarea id="b64-in" rows="4" placeholder="Enter text..."></textarea>
+
+    <button onclick="encodeB64()">Encode →</button>
+    <button onclick="decodeB64()">← Decode</button>
+
+    <textarea id="b64-out" rows="4" placeholder="Output..."></textarea>
+</div>
+
+<!-- ================== ROT TOOL ================== -->
+<div id="rot" class="box">
+    <h2>Rotation Encode / Decode 🔄</h2>
+
+    <textarea id="rot-text" rows="3" placeholder="Enter text..."></textarea>
+
+    <select id="rot-mode">
+        <option value="13">ROT13</option>
+        <option value="5">ROT5</option>
+        <option value="47">ROT47</option>
+    </select>
+
+    <button onclick="runRot()">Run Cipher</button>
+
+    <textarea id="rot-out" rows="3" placeholder="Output..."></textarea>
+</div>
+
+</div>
+
+<script>
+/* TAB HANDLER */
+function openTab(id) {
+    document.querySelectorAll('.box').forEach(b => b.style.display="none");
+    document.getElementById(id).style.display="block";
+}
+openTab('strength');
+
+/* ====== PASSWORD CHECKER ====== */
+function calcEntropy(pwd) {
+    let pool = 0;
+    if (/[a-z]/.test(pwd)) pool += 26;
+    if (/[A-Z]/.test(pwd)) pool += 26;
+    if (/[0-9]/.test(pwd)) pool += 10;
+    if (/[^A-Za-z0-9]/.test(pwd)) pool += 32;
+    return pwd.length * Math.log2(pool || 1);
+}
+
+/* ========= COMMON BREACHED PASSWORD LIST ========= */
+const breachedList = [
+  "123456","123456789","12345678","password","qwerty","12345","1234","111111",
+  "1234567","dragon","123123","baseball","abc123","iloveyou","monkey","shadow",
+  "master","666666","qwertyuiop","123321","mustang","1234567890","michael","654321",
+  "pussy","superman","1qaz2wsx","7777777","fuckyou","121212","000000","qazwsx",
+  "123qwe","killer","trustno1","jordan","jennifer","zxcvbnm","asdfgh","hunter",
+  "buster","soccer","harley","batman","andrew","tigger","sunshine","iloveyou1",
+  "2000","charlie","robert","thomas","hockey","ranger","daniel","starwars","klaster",
+  "112233","george","asshole","computer","michelle","jessica","pepper","1111",
+  "zxcvbn","555555","11111111","131313","freedom","777777","pass","fuck","maggie",
+  "159753","aaaaaa","ginger","princess","joshua","cheese","amanda","summer","love",
+  "ashley","6969","nicole","chelsea","biteme","matthew","access","yankees","987654321",
+  "dallas","austin","thunder","taylor","matrix","superman1",
+  "123456!","password!","qwerty!","12345!","1234!","111111!","abc123!","letmein!",
+  "123!","dragon!","iloveyou!","monkey!","shadow!","master!","666666!","trustno1!",
+  "1qaz2wsx!","password1!","welcome!","admin!","login!","sunshine!","princess!","football!",
+  "starwars!","hello!","freedom!","whatever!","qazwsx!","123qwe!","killer!","superman!"
+];
+
+/* ========= CRACK TIME ESTIMATOR ========= */
+function crackTime(entropy) {
+    const guessesPerSecond = 1e10;
+    let seconds = Math.pow(2, entropy) / guessesPerSecond;
+
+    const units = [
+        {label:"years", value:60*60*24*365},
+        {label:"days", value:60*60*24},
+        {label:"hours", value:60*60},
+        {label:"minutes", value:60},
+        {label:"seconds", value:1}
+    ];
+
+    for (let u of units) {
+        if (seconds >= u.value) {
+            return (seconds / u.value).toFixed(2) + " " + u.label;
+        }
+    }
+    return "less than a second";
+}
+
+/* ========= MAIN PASSWORD STRENGTH FUNCTION ========= */
+function checkStrength() {
+    let p = document.getElementById("pwd").value;
+    let ent = calcEntropy(p);
+
+    let score = ent < 28 ? 1 :
+                ent < 36 ? 2 :
+                ent < 60 ? 3 :
+                ent < 80 ? 4 : 5;
+
+    let bar = document.getElementById("meter-fill");
+    bar.style.width = (score * 20) + "%";
+    bar.style.background = score <= 2 ? "red" :
+                           score == 3 ? "orange" : "green";
+
+    let breached = breachedList.includes(p)
+        ? "<span style='color:red; font-weight:bold;'>⚠ Found in known breaches!</span>"
+        : "<span style='color:green;'>✔ Not found in common breaches</span>";
+
+    let crack = crackTime(ent);
+
+    document.getElementById("strength-out").innerHTML = `
+        <b>Entropy:</b> ${ent.toFixed(2)} bits<br>
+        <b>Strength:</b> ${score} / 5
+    `;
+
+    document.getElementById("extra-info").innerHTML = `
+        <b>Crack Time Estimate:</b> ${crack}<br>
+        <b>Breach Check:</b> ${breached}
+    `;
+
+    // Save to LocalStorage and update list
+    savePassword(p);
+    updateSavedPasswords();
+}
+
+/* ========== HASH TOOL ========== */
+async function md5poly(text) {
+    const b = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest("MD5", b);
+    return [...new Uint8Array(buf)].map(x=>x.toString(16).padStart(2,'0')).join("");
+}
+
+async function generateHash() {
+    let text = document.getElementById("hash-input").value;
+    let type = document.getElementById("hash-type").value;
+
+    let hash;
+    if (type === "MD5") {
+        hash = await md5poly(text);
+    } else {
+        let buf = await crypto.subtle.digest(type, new TextEncoder().encode(text));
+        hash = [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join("");
+    }
+
+    document.getElementById("hash-output").value = hash;
+}
+
+/* ========== BASE64 TOOLS ========== */
+function encodeB64() {
+    let t = document.getElementById("b64-in").value;
+    document.getElementById("b64-out").value = btoa(unescape(encodeURIComponent(t)));
+}
+function decodeB64() {
+    let t = document.getElementById("b64-in").value;
+    try {
+        document.getElementById("b64-out").value = decodeURIComponent(escape(atob(t)));
+    } catch(e) {
+        alert("Invalid Base64");
+    }
+}
+
+/* ========== ROT CIPHERS ========== */
+function rot13(s){return s.replace(/[a-zA-Z]/g,c=>String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26));}
+function rot5(s){return s.replace(/[0-9]/g,c=>String.fromCharCode((c=c.charCodeAt(0)+5)<=57?c:c-10));}
+function rot47(s){return s.replace(/[\x21-\x7E]/g,c=>String.fromCharCode(((c=c.charCodeAt(0)+47)>126)?c-94:c));}
+
+function runRot(){
+    let t=document.getElementById("rot-text").value;
+    let m=document.getElementById("rot-mode").value;
+    let out = m=="13" ? rot13(t) : m=="5" ? rot5(t) : rot47(t);
+    document.getElementById("rot-out").value = out;
+}
+</script>
+
+</body>
+</html>

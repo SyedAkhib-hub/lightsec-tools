@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Base64 Encoder & Decoder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{background:#0e0e0e;font-family:Arial;color:white;display:flex;justify-content:center;align-items:center;height:100vh;}
+.card{
+    width:450px;padding:25px;background:rgba(255,255,255,0.08);
+    border-radius:20px;backdrop-filter:blur(12px);box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+textarea,button{
+    width:100%;padding:12px;margin-top:12px;border:none;
+    border-radius:10px;background:rgba(255,255,255,0.1);color:white;font-size:16px;
+}
+button{background:#00c8ff;color:black;font-weight:bold;cursor:pointer;}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Base64 Tool 🧩</h2>
+
+    <textarea id="input" rows="4" placeholder="Text here..."></textarea>
+
+    <button onclick="encode()">Encode</button>
+    <button onclick="decode()">Decode</button>
+
+    <textarea id="output" rows="4" placeholder="Output..." readonly></textarea>
+</div>
+
+<script>
+function encode() {
+    let t = document.getElementById("input").value;
+    document.getElementById("output").value = btoa(unescape(encodeURIComponent(t)));
+}
+function decode() {
+    let t = document.getElementById("input").value;
+    try {
+        document.getElementById("output").value = decodeURIComponent(escape(atob(t)));
+    } catch {
+        alert("Invalid Base64!");
+    }
+}
+</script>
+
+</body>
+</html>
