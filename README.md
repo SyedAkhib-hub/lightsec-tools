@@ -70,7 +70,11 @@ A **web-based cybersecurity toolkit** that helps users analyze and improve their
 3. Navigate to each tool using the navbar.
 4. Use password guidance and check against the breach list.
 
----
+--- screenshot ---
+
+<img width="1366" height="768" alt="Screenshot_2025-11-16_03_07_17" src="https://github.com/user-attachments/assets/037e394a-5634-4826-b140-247056f4473f" />
+<img width="1366" height="768" alt="Screenshot_2025-11-16_03_07_10" src="https://github.com/user-attachments/assets/66e68296-a4a8-4874-a329-4deeab514b96" />
+<img width="1366" height="768" alt="Screenshot_2025-11-16_03_07_00" src="https://github.com/user-attachments/assets/36839dd1-e317-4ded-8de9-e3f9af2588dd" />
 
 ## **Optional**
 You can extend this project with:
