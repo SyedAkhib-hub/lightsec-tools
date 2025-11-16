@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ROT Encoder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body{background:#0e0e0e;font-family:Arial;color:white;display:flex;justify-content:center;align-items:center;height:100vh;}
+.panel{
+    width:450px;padding:25px;background:rgba(255,255,255,0.08);
+    border-radius:20px;backdrop-filter:blur(12px);box-shadow:0 0 25px rgba(0,0,0,0.5);
+}
+textarea,select,button{
+    width:100%;margin-top:12px;padding:12px;
+    border:none;border-radius:10px;background:rgba(255,255,255,0.1);color:white;
+}
+button{background:#00c8ff;color:black;font-weight:bold;cursor:pointer;}
+</style>
+</head>
+
+<body>
+
+<div class="panel">
+    <h2>ROT Cipher 🔄</h2>
+
+    <textarea id="text" rows="3" placeholder="Enter text..."></textarea>
+    <select id="mode">
+        <option value="13">ROT13</option>
+        <option value="5">ROT5</option>
+        <option value="47">ROT47</option>
+    </select>
+
+    <button onclick="doRot()">Encode / Decode</button>
+
+    <textarea id="out" rows="3" readonly placeholder="Output..."></textarea>
+</div>
+
+<script>
+function rot13(s){ return s.replace(/[a-zA-Z]/g,c=>String.fromCharCode((c<="Z"?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26)); }
+function rot5(s){ return s.replace(/[0-9]/g,c=>String.fromCharCode((c=c.charCodeAt(0)+5)<=57?c:c-10)); }
+function rot47(s){
+    return s.replace(/[\x21-\x7E]/g,c=>{
+        let x=c.charCodeAt(0)+47;
+        return String.fromCharCode(x>126?x-94:x);
+    });
+}
+
+function doRot(){
+    let t=document.getElementById("text").value;
+    let mode=document.getElementById("mode").value;
+
+    let out="";
+    if(mode==="13") out=rot13(t);
+    if(mode==="5") out=rot5(t);
+    if(mode==="47") out=rot47(t);
+
+    document.getElementById("out").value = out;
+}
+</script>
+
+</body>
+</html>
